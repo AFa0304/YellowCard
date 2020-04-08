@@ -12,38 +12,27 @@
 
 <body>
     <div id="container">
+        <input type="text" id="userName" />
+        <button onclick="login()">登入</button>
     </div>
 
     <script>
         var socket = io();
         var status = document.getElementById("status");
-        var sendForm = document.getElementById("send-form")
         socket.on("connect", function () {
+            console.log("connected")
             socket.emit("connectEvent")
-            status.innerText = "Connected.";
         })
-        socket.on("disconnect", function () {
-            status.innerText = "Disconnected.";
+        socket.on("loginSuccess", function (result, ID) {
+            if (result) {
+                window.location.href = "/login/" + ID
+            } else {
+                alert("登入失敗")
+            }
         })
-        socket.on("online", function (amount) {
-            document.getElementById("online").innerText = amount;
-        })
-        socket.on("msg", function (d) {
-            $("#content").append('<div class="msg"><span class="name">'+d.name+'</span><span class="msg-content">'+d.msg+'</span></div>')
-        });
-        socket.on("connectEvent", function (msg) {
-            document.getElementById("msg").innerText = msg
-        })
-        sendForm.addEventListener("submit", function (e) {
-            e.preventDefault();
-            var formData = {};
-            $('#send-form input[type="text"]').map(function(){
-                console.log(this)
-                formData[this.name] = this.value
-            })
-            socket.emit("send", formData);
-        });
-
+        function login() {
+            socket.emit("login", $("#userName").val());
+        }
     </script>
 </body>
 

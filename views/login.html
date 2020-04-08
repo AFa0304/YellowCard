@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../assets/script/jquery-3.4.1.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <title>大廳</title>
+    <script>
+        var ID = window.location.pathname.replace("/login/", "")
+        var socket = io();
+        socket.on("connect", function () {
+            socket.emit("getLobbyInfo", ID)
+            $.get("/getUserInfo?id=" + ID, function (response) {
+                console.log(response)
+            }).fail(function (error) {
+                alert(error.responseText)
+                window.location.href = "/"
+            })
+        })
+        socket.on("disconnect", function () {
+            socket.emit("logout", "我是ID")
+        })
+        socket.on("getLobbyInfo", function (datas) {
+            console.log(datas)
+            var _layout = ""
+            datas.players.map(function (user) {
+                _layout += "<div>" + user.userName + "</div>"
+            })
+            $("#userName")[0].innerText = datas.userName
+            $("#users")[0].innerHTML = _layout
+        })
+    </script>
+</head>
+
+<body>
+    <div>
+        your name: <span id="userName"></span>
+    </div>
+    <div>
+        <h1>users</h1>
+        <div id="users"></div>
+    </div>
+</body>
+
+</html>
