@@ -20,7 +20,7 @@ io.on('connection', (socket) => {
         io.emit("msg", msg);
     })
     socket.on('disconnect', () => {
-        // 有人離線了，扣人
+        // 有人離線了，減少人數
         onlineCount = (onlineCount < 0) ? 0 : onlineCount -= 1;
         io.emit("online", onlineCount);
     })
