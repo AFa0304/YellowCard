@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Chatroom</title>
+    <link rel="stylesheet" type="text/css" href="../assets/styles/index.css">
+    <script src="../assets/script/jquery-3.4.1.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <div id="container">
+    </div>
+
+    <script>
+        var socket = io();
+        var status = document.getElementById("status");
+        var sendForm = document.getElementById("send-form")
+        socket.on("connect", function () {
+            socket.emit("connectEvent")
+            status.innerText = "Connected.";
+        })
+        socket.on("disconnect", function () {
+            status.innerText = "Disconnected.";
+        })
+        socket.on("online", function (amount) {
+            document.getElementById("online").innerText = amount;
+        })
+        socket.on("msg", function (d) {
+            $("#content").append('<div class="msg"><span class="name">'+d.name+'</span><span class="msg-content">'+d.msg+'</span></div>')
+        });
+        socket.on("connectEvent", function (msg) {
+            document.getElementById("msg").innerText = msg
+        })
+        sendForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            var formData = {};
+            $('#send-form input[type="text"]').map(function(){
+                console.log(this)
+                formData[this.name] = this.value
+            })
+            socket.emit("send", formData);
+        });
+
+    </script>
+</body>
+
+</html>
