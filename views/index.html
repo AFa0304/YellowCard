@@ -4,16 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Chatroom</title>
+    <title>來玩黃牌R</title>
+    <link rel="shortcut icon" href="/assets/images/yellow-card.jpg" type="image/x-icon" />
     <link rel="stylesheet" type="text/css" href="../assets/styles/index.css">
     <script src="../assets/script/jquery-3.4.1.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
-    <div id="container">
-        <input type="text" id="userName" />
-        <button onclick="login()">登入</button>
+    <div class="index container">
+        <div class="index-container">
+            <div><img src="/assets/images/yellow-card.jpg" /></div>
+            <div class="login-div">
+                <form id="login-form">
+                    <input id="userName" type="text" placeholder="請輸入不要太猥瑣的暱稱:"/>
+                    <button type="submit">開始遊戲</button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -23,7 +31,7 @@
             console.log("connected")
         })
         socket.on("testConsole", function (consoleData) {
-            console.log("consoleData",consoleData)
+            console.log("consoleData", consoleData)
         })
         socket.on("loginSuccess", function (result, ID) {
             if (result) {
@@ -32,9 +40,11 @@
                 alert("登入失敗")
             }
         })
-        function login() {
+        $("#login-form").submit(function (event) {
+            event.preventDefault();
             socket.emit("login", $("#userName").val());
-        }
+
+        })
     </script>
 </body>
 

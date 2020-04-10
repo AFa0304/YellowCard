@@ -1,3 +1,13 @@
+/* ↓ Heroku ↓ */
+const http = require('http')
+const port = process.env.PORT || 4567
+
+// const server = http.createServer((req,res)=>{
+//     res.statusCode = 200;
+//     res.setHeader('Content-Type', 'text/plain');
+//     res.end('AFa is handsome');
+// })
+/* ↑ Heroku ↑ */
 const express = require('express')
 const app = express()
 const server = require('http').Server(app)
@@ -47,7 +57,7 @@ io.on('connection', (socket) => {
         findUserByID(userID, function (index) {
             userName = users[index].userName
         })
-        console.log("玩家 "+ userName + " 加入大廳")
+        console.log("玩家 " + userName + " 加入大廳")
     })
 
     socket.on("refreshPlayerList", () => { //刷新線上名單
@@ -68,14 +78,13 @@ io.on('connection', (socket) => {
         if (isAllReady) {
             let sec = 5
             const countdown = setInterval(() => {
-                console.log(sec + "...")
+                console.log("遊戲將在" + sec + "秒後開始...")
                 sec -= 1
                 if (sec === 0) {
                     clearInterval(countdown)
                     console.log("game start")
                 }
             }, 1000)
-            console.log("遊戲將在五秒後開始...")
         }
     })
     /* 離開連線 */
@@ -99,7 +108,7 @@ function findUserByID(userID, callBack) {
     })
 }
 
-
-server.listen(4567, () => {
-    console.log("Server Started. http://localhost:4567");
-});
+server.listen(port, () => console.log(`Listening on ${port}`));
+// server.listen(4567, () => {
+//     console.log("Server Started. http://localhost:4567");
+// });
