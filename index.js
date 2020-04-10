@@ -1,12 +1,5 @@
 /* ↓ Heroku ↓ */
-const http = require('http')
 const port = process.env.PORT || 4567
-
-// const server = http.createServer((req,res)=>{
-//     res.statusCode = 200;
-//     res.setHeader('Content-Type', 'text/plain');
-//     res.end('AFa is handsome');
-// })
 /* ↑ Heroku ↑ */
 const express = require('express')
 const app = express()
@@ -19,8 +12,8 @@ app.use('/assets', express.static('assets'))
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/views/index.html');
 });
-app.get('/login/:userName', (req, res) => {
-    res.sendFile(__dirname + '/views/login.html');
+app.get('/lobby/:userName', (req, res) => {
+    res.sendFile(__dirname + '/views/lobby.html');
 });
 app.get('/getUserInfo', (req, res) => {
     let userData = null
@@ -37,54 +30,79 @@ app.get('/getUserInfo', (req, res) => {
 
 io.on('connection', (socket) => {
     const guid = socket.id
-    let userName = ""
 
     /* 開始頁 */
-    socket.on("login", (userName) => { //登入事件
+    socket.on("login", (userName) => { // 登入事件
         users.push({
             ID: guid,
             userName: userName,
-            ready: false
+            ready: false,
+            isConnecting: false
         })
         socket.emit("loginSuccess", true, guid)
         console.log("玩家 " + userName + " 登入 ID:" + guid)
     })
     /* Lobby頁 */
     socket.on("successLoginLobby", (userID) => {
+        let userIndex = undefined
         socket.join("room1")
         socket.room = "room1"
-        socket.id = userID
         findUserByID(userID, function (index) {
-            userName = users[index].userName
+            userIndex = index
         })
-        console.log("玩家 " + userName + " 加入大廳")
+        if (users[userIndex].isConnecting === true) {
+            socket.emit("alertAndBackToHome", "重複的連線,請重新登入")
+        } else {
+            socket.id = userID
+            users[userIndex].isConnecting = true
+            io.emit("getSystemMsg", "玩家 <strong>" + users[userIndex].userName + "</strong> 加入大廳")
+        }
     })
 
-    socket.on("refreshPlayerList", () => { //刷新線上名單
+    socket.on("refreshPlayerList", () => { // 刷新線上名單
         io.emit("refreshPlayerList", users)
     })
 
-    socket.on("readyPlay", (userID) => { //按下準備紐
+    socket.on("toggleReady", (userID) => { // 按下準備紐
         let isAllReady = true
+        let notReadyUsers = []
         findUserByID(userID, function (index) {
-            users[index].ready = true
+            users[index].ready = !users[index].ready
             io.emit("refreshPlayerList", users)
-        })
-        users.map(user => {
-            if (user.ready === false) {
-                isAllReady = false
+            if (users[index].ready === true) {
+                io.emit("getSystemMsg", "<strong>" + users[index].userName + "</strong> 已經準備好了")
+            } else {
+                io.emit("getSystemMsg", "<strong>" + users[index].userName + "</strong> 取消了準備")
             }
         })
-        if (isAllReady) {
+        users.map((user, index) => {
+            if (user.ready === false) {
+                isAllReady = false
+                notReadyUsers.push(user.userName)
+            }
+            if (!user.isConnecting) { // 踢除大廳內未連線使用者
+                kickOutUser(index)
+            }
+        })
+        if (isAllReady && users.length > 1) {
             let sec = 5
             const countdown = setInterval(() => {
-                console.log("遊戲將在" + sec + "秒後開始...")
+                io.emit("getSystemMsg", "遊戲將在<strong>" + sec + "</strong>秒後開始...")
                 sec -= 1
-                if (sec === 0) {
-                    clearInterval(countdown)
-                    console.log("game start")
-                }
+                users.map((user) => {
+                    if (user.ready === false) { // 若有人中途取消準備
+                        clearInterval(countdown)
+                        io.emit("getSystemMsg", "<strong>"+user.userName+"</strong> 取消了準備，暫停倒數")
+                    } else {
+                        if (sec === 0) {
+                            clearInterval(countdown)
+                            io.emit("getSystemMsg", "game start")
+                        }
+                    }
+                })
             }, 1000)
+        } else {
+            if (users.length !== 1) io.emit("getSystemMsg", "剩 <strong>" + notReadyUsers.join(",") + "</strong> 還沒按開始，大家快催他" + (notReadyUsers.length > 1 ? "們" : ""))
         }
     })
     /* 離開連線 */
@@ -92,13 +110,16 @@ io.on('connection', (socket) => {
         if (socket.room) { // 在大廳
             if (socket.id) {
                 findUserByID(socket.id, function (index) {
-                    console.log("玩家 " + users[index].userName + " 離開了大廳")
-                    users.splice(index, 1)
-                    io.emit("refreshPlayerList", users)
+                    kickOutUser(index)
                 })
             }
         }
     })
+    function kickOutUser(UserIndex) { // 踢掉使用者
+        io.emit("getSystemMsg", "玩家 <strong>" + users[UserIndex].userName + "</strong> 離開了大廳")
+        users.splice(UserIndex, 1)
+        io.emit("refreshPlayerList", users)
+    }
 })
 function findUserByID(userID, callBack) {
     users.map((user, index) => {
@@ -108,7 +129,4 @@ function findUserByID(userID, callBack) {
     })
 }
 
-server.listen(port, () => console.log(`Listening on ${port}`));
-// server.listen(4567, () => {
-//     console.log("Server Started. http://localhost:4567");
-// });
+server.listen(port, () => console.log(`伺服器啟動，PORT:${port}`));

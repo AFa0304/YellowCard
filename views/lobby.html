@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="shortcut icon" href="/assets/images/yellow-card.jpg" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" href="/assets/styles/index.css">
+    <link rel="stylesheet" type="text/css" href="/assets/styles/lobby.css">
+    <link rel="stylesheet" type="text/css" href="/assets/styles/animate.css">
+    <script src="/assets/script/jquery-3.4.1.min.js"></script>
+    <script src="/assets/script/wow.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <title>來玩黃牌R - 遊戲等待大廳</title>
+    <script>
+        new WOW().init()
+        var ID = window.location.pathname.replace("/lobby/", "")
+        var socket = io();
+        socket.on("connect", function () {
+            socket.id = ID
+            $.get("/getUserInfo?id=" + ID, function (response) {
+                console.log(response)
+                // $("#userName")[0].innerText = response.userName
+                socket.emit("successLoginLobby", ID)
+                socket.emit("refreshPlayerList")
+            }).fail(function (error) {
+                alert(error.responseText)
+                window.location.href = "/"
+            })
+        })
+        socket.on("alertAndBackToHome", function (msg) {
+            alert(msg)
+            window.location.href = "/"
+        })
+        socket.on("refreshPlayerList", function (users) {
+            var _layout = ""
+            users.map(function (user) {
+                _layout += "\
+                <div class='user wow fadeIn' id='"+ user.ID + "'>\
+                    <span>玩家 <h4>"+ user.userName + "</h4></span>\
+                    <span>狀態:<h4>"+ (user.ready ? "已準備" : "等待中") + "</h4></span>\
+                </div>"
+                if (user.ID === ID) {
+                    if (user.ready) {
+                        $("#ready-btn button")[0].innerText = "我還沒準備好啦"
+                        $("#ready-btn button").removeClass("bounce")
+                    } else {
+                        $("#ready-btn button")[0].innerText = "我準備好了"
+                        $("#ready-btn button").addClass("bounce")
+                    }
+                }
+            })
+            $("#users")[0].innerHTML = _layout
+        })
+        socket.on("getSystemMsg", function (msg) {
+            $(".system-info-content").append("<div>" + msg + "</div>")
+            
+            $(".system-info-content").animate({scrollTop:$(".system-info-content")[0].scrollHeight},0)
+        })
+        function toggleReady() {
+            socket.emit("toggleReady", ID)
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="lobby-container">
+            <div class="lobby-title">
+                <h1>遊戲大廳</h1>
+            </div>
+            <div class="lobby-system-info">
+                <div class="system-info-topbar">
+                    <div class="panel">
+                        <span class="first"></span><span class="second"></span><span class="third"></span>
+                    </div>
+                </div>
+                <div class="system-info-content custom-scrollbar">
+                </div>
+            </div>
+            <div class="lobby-content">
+                <div id="users"></div>
+            </div>
+            <div id="ready-btn">
+                <button class="wow" data-wow-iteration="infinite" data-wow-delay="10s"
+                    onclick='toggleReady()'>我準備好了</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

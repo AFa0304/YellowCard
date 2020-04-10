@@ -1,0 +1,95 @@
+.index-container {
+    display        : flex;
+    justify-content: center;
+    align-items    : center;
+    flex-direction : column;
+    padding        : 1rem 0;
+}
+
+.login-div {
+    width             : 60%;
+    max-width         : 300px;
+    display           : flex;
+    justify-content   : center;
+    align-items       : center;
+    background-color  : rgba(245, 245, 245, 0.9);
+    padding           : 30px 10px 60px 10px;
+    margin            : 0 auto;
+    border-radius     : 12px;
+    -moz-box-shadow   : 0 4px 12px rgba(0, 0, 0, .5);
+    -webkit-box-shadow: 0 4px 12px rgba(0, 0, 0, .5);
+    box-shadow        : 0 4px 12px rgba(0, 0, 0, .5);
+}
+
+.login-div>form {
+    width          : 80%;
+    display        : flex;
+    justify-content: center;
+    align-items    : center;
+    flex-direction : column;
+}
+
+.login-div span {
+    font-size  : 18px;
+    font-weight: bold;
+}
+
+.login-div h2 {
+    font-size  : 42px;
+    color      : #faf11a;
+    text-shadow: 3px 0 black, 0 2px black, 3px 0 black, 0 2px black;
+    margin     : 0 0 1.3rem;
+}
+
+#login-form input[type="text"] {
+    width           : 100%;
+    border          : none;
+    border-radius   : 6px;
+    background-color: rgba(129, 129, 129, 0.8);
+    color           : white;
+    font-size       : 20px;
+    padding         : 14px 8px;
+}
+
+#login-form input[type="text"]::-webkit-input-placeholder {
+    /* Edge */
+    color: white;
+}
+
+#login-form input[type="text"]:-ms-input-placeholder {
+    /* Internet Explorer 10-11 */
+    color: white;
+}
+
+#login-form input[type="text"]::placeholder {
+    color: white;
+}
+
+#login-form button {
+    border          : none;
+    border-radius   : 10px;
+    background-color: #faf11a;
+    color           : black;
+    font-size       : 32px;
+    font-weight     : bold;
+    padding         : 12px 20px;
+    margin-top      : 15px;
+    cursor          : pointer;
+}
+
+#login-form button:hover {
+    background-color: #e7e00e;
+}
+#error-msg{
+    height: 1rem;
+    color: rgb(218, 5, 5);
+    margin-top: 10px;
+}
+@media screen and (max-width:600px){
+    #login-form input[type="text"]{
+        font-size: 14px;
+    }
+    #login-form button{
+        font-size: 20px;
+    }
+}

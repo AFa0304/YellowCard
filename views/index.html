@@ -4,20 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>來玩黃牌R</title>
+    <title>來玩黃牌R - 登入</title>
     <link rel="shortcut icon" href="/assets/images/yellow-card.jpg" type="image/x-icon" />
-    <link rel="stylesheet" type="text/css" href="../assets/styles/index.css">
-    <script src="../assets/script/jquery-3.4.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/assets/styles/index.css">
+    <link rel="stylesheet" type="text/css" href="/assets/styles/home.css">
+    <link rel="stylesheet" type="text/css" href="/assets/styles/animate.css">
+    <script src="/assets/script/jquery-3.4.1.min.js"></script>
+    <script src="/assets/script/wow.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <script>
+        new WOW().init()
+    </script>
 </head>
 
 <body>
     <div class="index container">
         <div class="index-container">
-            <div><img src="/assets/images/yellow-card.jpg" /></div>
-            <div class="login-div">
+            <div class="wow bounceInRight"><img src="/assets/images/yellow-card.png" /></div>
+            <div class="login-div wow flipInX" data-wow-delay="0.6s" data-wow-duration="0.5s">
                 <form id="login-form">
-                    <input id="userName" type="text" placeholder="請輸入不要太猥瑣的暱稱:"/>
+                    <h2>登入囉</h2>
+                    <input id="userName" type="text" onfocus="inputFocus()" placeholder="請輸入不要太猥瑣的暱稱" />
+                    <strong class="wow" id="error-msg" data-wow-duration="0.5s"></strong>
                     <button type="submit">開始遊戲</button>
                 </form>
             </div>
@@ -35,16 +43,25 @@
         })
         socket.on("loginSuccess", function (result, ID) {
             if (result) {
-                window.location.href = "/login/" + ID
+                window.location.href = "/lobby/" + ID
             } else {
                 alert("登入失敗")
             }
         })
         $("#login-form").submit(function (event) {
             event.preventDefault();
-            socket.emit("login", $("#userName").val());
-
+            const userName = $("#userName").val()
+            if (userName.trim().length > 0) {
+                socket.emit("login", userName);
+            } else {
+                $("#error-msg")[0].innerText = "你484沒輸入暱稱"
+                $("#error-msg").addClass("shake")
+            }
         })
+        function inputFocus() {
+            $("#error-msg")[0].innerText = " "
+            $("#error-msg").removeClass("shake")
+        }
     </script>
 </body>
 
