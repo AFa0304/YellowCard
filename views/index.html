@@ -21,7 +21,9 @@
         var status = document.getElementById("status");
         socket.on("connect", function () {
             console.log("connected")
-            socket.emit("connectEvent")
+        })
+        socket.on("testConsole", function (consoleData) {
+            console.log("consoleData",consoleData)
         })
         socket.on("loginSuccess", function (result, ID) {
             if (result) {

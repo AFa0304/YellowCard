@@ -12,26 +12,31 @@
         var ID = window.location.pathname.replace("/login/", "")
         var socket = io();
         socket.on("connect", function () {
-            socket.emit("getLobbyInfo", ID)
+            socket.id = ID
             $.get("/getUserInfo?id=" + ID, function (response) {
                 console.log(response)
+                $("#userName")[0].innerText = response.userName
+                socket.emit("successLoginLobby", ID)
+                socket.emit("refreshPlayerList")
             }).fail(function (error) {
                 alert(error.responseText)
                 window.location.href = "/"
             })
         })
-        socket.on("disconnect", function () {
-            socket.emit("logout", "我是ID")
+        socket.on("userNotFound", function () {
+            alert("userNotFound")
+            window.location.href = "/"
         })
-        socket.on("getLobbyInfo", function (datas) {
-            console.log(datas)
+        socket.on("refreshPlayerList", function (users) {
             var _layout = ""
-            datas.players.map(function (user) {
-                _layout += "<div>" + user.userName + "</div>"
+            users.map(function (user) {
+                _layout += "<div>" + user.userName + " (" + (user.ready ? "ready" : "wait..") + ")</div>"
             })
-            $("#userName")[0].innerText = datas.userName
             $("#users")[0].innerHTML = _layout
         })
+        function readyPlay() {
+            socket.emit("readyPlay", ID)
+        }
     </script>
 </head>
 
@@ -42,6 +47,7 @@
     <div>
         <h1>users</h1>
         <div id="users"></div>
+        <div id="play"><button onclick="readyPlay()">ready</button></div>
     </div>
 </body>
 
