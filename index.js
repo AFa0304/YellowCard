@@ -1,5 +1,5 @@
 /* ↓ Heroku ↓ */
-const port = process.env.PORT || 4567
+const port = process.env.PORT || 4567 //git push heroku master
 /* ↑ Heroku ↑ */
 const express = require('express')
 const app = express()
@@ -14,6 +14,9 @@ app.get('/', (req, res) => {
 });
 app.get('/lobby/:userName', (req, res) => {
     res.sendFile(__dirname + '/views/lobby.html');
+});
+app.get('/game/:userName', (req, res) => {
+    res.sendFile(__dirname + '/views/game.html');
 });
 app.get('/getUserInfo', (req, res) => {
     let userData = null
@@ -92,11 +95,12 @@ io.on('connection', (socket) => {
                 users.map((user) => {
                     if (user.ready === false) { // 若有人中途取消準備
                         clearInterval(countdown)
-                        io.emit("getSystemMsg", "<strong>"+user.userName+"</strong> 取消了準備，暫停倒數")
+                        io.emit("getSystemMsg", "<strong>" + user.userName + "</strong> 取消了準備，暫停倒數")
                     } else {
                         if (sec === 0) {
                             clearInterval(countdown)
-                            io.emit("getSystemMsg", "game start")
+                            io.emit("getSystemMsg", "遊戲開始")
+                            io.emit("gameStart")
                         }
                     }
                 })
@@ -105,6 +109,8 @@ io.on('connection', (socket) => {
             if (users.length !== 1) io.emit("getSystemMsg", "剩 <strong>" + notReadyUsers.join(",") + "</strong> 還沒按開始，大家快催他" + (notReadyUsers.length > 1 ? "們" : ""))
         }
     })
+    /* 遊戲頁 */
+    
     /* 離開連線 */
     socket.on('disconnect', () => {
         if (socket.room) { // 在大廳

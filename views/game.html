@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>來玩黃牌R - 遊戲</title>
+    <link rel="shortcut icon" href="/assets/images/yellow-card.jpg" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" href="/assets/styles/index.css">
+    <link rel="stylesheet" type="text/css" href="/assets/styles/game.css">
+    <link rel="stylesheet" type="text/css" href="/assets/styles/animate.css">
+    <script src="/assets/script/jquery-3.4.1.min.js"></script>
+    <script src="/assets/script/wow.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        new WOW().init()
+    </script>
+</head>
+
+<body>
+    <div class="game container">
+        <div class="myCard-area">
+            <div class="yellow-cards">
+                <div class="yellow-card"><div class="card-content">卡片測試</div></div>
+                <div class="yellow-card"><div class="card-content">卡片測試</div></div>
+                <div class="yellow-card"><div class="card-content">卡片測試</div></div>
+                <div class="yellow-card"><div class="card-content">卡片測試</div></div>
+                <div class="yellow-card"><div class="card-content">卡片測試</div></div>
+                <div class="yellow-card"><div class="card-content">卡片測試</div></div>
+                <div class="yellow-card"><div class="card-content">卡片測試</div></div>
+                <div class="yellow-card"><div class="card-content">卡片測試</div></div>
+                <div class="yellow-card"><div class="card-content">卡片測試</div></div>
+                <div class="yellow-card"><div class="card-content">卡片測試</div></div>
+                <div class="yellow-card"><div class="card-content">卡片測試</div></div>
+                <div class="yellow-card"><div class="card-content">卡片測試</div></div>
+                <div class="yellow-card"><div class="card-content">卡片測試</div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var socket = io();
+        var status = document.getElementById("status");
+        socket.on("connect", function () {
+            console.log("connected")
+        })
+        socket.on("testConsole", function (consoleData) {
+            console.log("consoleData", consoleData)
+        })
+    </script>
+</body>
+
+</html>

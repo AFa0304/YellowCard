@@ -55,8 +55,11 @@
         })
         socket.on("getSystemMsg", function (msg) {
             $(".system-info-content").append("<div>" + msg + "</div>")
-            
-            $(".system-info-content").animate({scrollTop:$(".system-info-content")[0].scrollHeight},0)
+
+            $(".system-info-content").animate({ scrollTop: $(".system-info-content")[0].scrollHeight }, 0)
+        })
+        socket.on("gameStart", function () {
+            window.location.href = "/game/" + ID
         })
         function toggleReady() {
             socket.emit("toggleReady", ID)
